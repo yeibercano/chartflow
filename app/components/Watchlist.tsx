@@ -9,51 +9,47 @@ interface WatchlistProps {
 }
 
 export default function Watchlist({ stocks, watchlist, selectedTicker, onSelect }: WatchlistProps) {
-  const wlStocks = watchlist.map(t => stocks.find(s => s.ticker === t)).filter(Boolean) as Stock[];
+  const wlStocks = watchlist.map((t) => stocks.find((s) => s.ticker === t)).filter(Boolean) as Stock[];
 
   return (
-    <aside style={{
-      width: 220, flexShrink: 0,
-      borderRight: "0.5px solid var(--border)",
-      background: "var(--bg-secondary)",
-      display: "flex", flexDirection: "column",
-    }}>
-      <div style={{ padding: "14px 16px", borderBottom: "0.5px solid var(--border)" }}>
-        <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.12em", color: "var(--text-muted)", textTransform: "uppercase", margin: 0 }}>
-          Watchlist
-        </p>
-      </div>
+    <aside className="flex w-[220px] shrink-0 flex-col border-r border-white/10 bg-[var(--bg-secondary)]" aria-label="Watchlist panel">
+      <header className="border-b border-white/10 px-4 py-3.5">
+        <h2 className="m-0 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">Watchlist</h2>
+      </header>
 
-      {wlStocks.map(s => {
-        const isPos = s.change >= 0;
-        const sign = isPos ? "+" : "";
-        const isActive = s.ticker === selectedTicker;
-        return (
-          <div
-            key={s.ticker}
-            onClick={() => onSelect(s.ticker)}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "10px 16px", cursor: "pointer",
-              borderBottom: "0.5px solid rgba(255,255,255,0.04)",
-              borderLeft: isActive ? "2px solid var(--accent)" : "2px solid transparent",
-              background: isActive ? "rgba(56,189,248,0.08)" : "transparent",
-              transition: "background 0.12s",
-            }}
-          >
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", margin: 0, letterSpacing: "0.04em" }}>{s.ticker}</p>
-              <p style={{ fontSize: 10, color: "var(--text-muted)", margin: "2px 0 0" }}>{s.name.split(" ")[0]}</p>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 13, color: "var(--text-primary)", margin: 0 }}>${s.price.toFixed(2)}</p>
-              <p style={{ fontSize: 10, color: isPos ? "var(--green)" : "var(--red)", margin: "2px 0 0" }}>
-                {sign}{s.change.toFixed(2)}%
-              </p>
-            </div>
-          </div>
-        );
-      })}
+      <ul className="m-0 list-none p-0">
+        {wlStocks.map((s) => {
+          const isPos = s.change >= 0;
+          const sign = isPos ? "+" : "";
+          const isActive = s.ticker === selectedTicker;
+
+          return (
+            <li key={s.ticker}>
+              <button
+                type="button"
+                onClick={() => onSelect(s.ticker)}
+                className={`flex w-full cursor-pointer items-center justify-between border-b border-white/5 px-4 py-2.5 text-left transition-colors ${
+                  isActive
+                    ? "border-l-2 border-l-[var(--accent)] bg-sky-400/10"
+                    : "border-l-2 border-l-transparent bg-transparent"
+                }`}
+              >
+                <span>
+                  <span className="block text-[13px] font-medium tracking-[0.04em] text-[var(--text-primary)]">{s.ticker}</span>
+                  <span className="mt-0.5 block text-[10px] text-[var(--text-muted)]">{s.name.split(" ")[0]}</span>
+                </span>
+                <span className="text-right">
+                  <span className="block text-[13px] text-[var(--text-primary)]">${s.price.toFixed(2)}</span>
+                  <span className={`mt-0.5 block text-[10px] ${isPos ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
+                    {sign}
+                    {s.change.toFixed(2)}%
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </aside>
   );
 }

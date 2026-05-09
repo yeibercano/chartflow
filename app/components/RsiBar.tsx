@@ -1,11 +1,12 @@
 export default function RsiBar({ rsi }: { rsi: number }) {
-  const color = rsi > 65 ? "#f87171" : rsi < 35 ? "#34d399" : "#fbbf24";
+  const toneClass = rsi > 65 ? "bg-red-400" : rsi < 35 ? "bg-emerald-400" : "bg-amber-400";
+
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ flex: 1, height: 3, background: "rgba(255,255,255,0.08)", borderRadius: 2, minWidth: 50 }}>
-        <div style={{ width: `${rsi}%`, height: "100%", background: color, borderRadius: 2 }} />
+    <div className="flex items-center gap-2">
+      <div className="h-[3px] min-w-[50px] flex-1 rounded bg-white/10">
+        <div className={`h-full rounded ${toneClass}`} style={{ width: `${rsi}%` }} />
       </div>
-      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", minWidth: 24 }}>{rsi}</span>
+      <span className="min-w-6 text-[11px] text-white/50">{rsi}</span>
     </div>
   );
 }
