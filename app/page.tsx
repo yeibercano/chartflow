@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
+import ChartPanel from "./components/ChartPanel";
 import Watchlist from "./components/Watchlist";
 import Screener from "./components/Screener";
 import { STOCKS, WATCHLIST_DEFAULT, type Stock } from "@/lib/data";
@@ -31,7 +32,7 @@ export default function Home() {
     };
 
     void load();
-    const id = window.setInterval(load, 60_000);
+    const id = window.setInterval(load, 5 * 60_000);
 
     return () => {
       mounted = false;
@@ -61,9 +62,10 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+    <div className="flex h-screen flex-col overflow-hidden">
       <Header />
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <ChartPanel symbol={selectedTicker} />
+      <div className="flex flex-1 overflow-hidden">
         <Watchlist
           stocks={stocks}
           watchlist={WATCHLIST_DEFAULT}

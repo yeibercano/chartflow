@@ -49,7 +49,7 @@ Open [http://localhost:3000](http://localhost:3000)
 3. Click Deploy — zero config needed
 
 ## Roadmap
-- [ ] Candlestick chart with TradingView Lightweight Charts
+- [x] Candlestick chart with TradingView Lightweight Charts
 - [x] Real market data via Twelve Data free API
 - [ ] Price alerts
 - [ ] Portfolio tracker

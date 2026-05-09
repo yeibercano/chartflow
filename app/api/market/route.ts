@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { STOCKS, formatLargeNumber, signalFromRsi, type Stock } from "@/lib/data";
 
 const TWELVE_DATA_URL = "https://api.twelvedata.com/quote";
+const QUOTE_CACHE_TTL_MS = 5 * 60 * 1000;
+
+const quoteCache = new Map<string, { expiresAt: number; result: { quote?: TwelveQuote; error?: string } }>();
 
 type TwelveQuote = {
   symbol?: string;
@@ -81,22 +84,37 @@ async function fetchQuote(
   symbol: string,
   apikey: string,
 ): Promise<{ quote?: TwelveQuote; error?: string }> {
+  const cached = quoteCache.get(symbol);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.result;
+  }
+
   const res = await fetch(
     `${TWELVE_DATA_URL}?symbol=${encodeURIComponent(symbol)}&apikey=${encodeURIComponent(apikey)}&dp=2`,
     { next: { revalidate: 60 } },
   );
 
-  if (!res.ok) return { error: `HTTP ${res.status}` };
+  if (!res.ok) {
+    const result = { error: `HTTP ${res.status}` };
+    quoteCache.set(symbol, { expiresAt: Date.now() + 30_000, result });
+    return result;
+  }
   const json = (await res.json()) as TwelveQuote & TwelveError;
   if (json.code || json.status === "error") {
-    return { error: json.message ?? `Error code ${json.code ?? "unknown"}` };
+    const result = { error: json.message ?? `Error code ${json.code ?? "unknown"}` };
+    quoteCache.set(symbol, { expiresAt: Date.now() + 30_000, result });
+    return result;
   }
 
   if (!json.close) {
-    return { error: "No price data returned" };
+    const result = { error: "No price data returned" };
+    quoteCache.set(symbol, { expiresAt: Date.now() + 30_000, result });
+    return result;
   }
 
-  return { quote: json };
+  const result = { quote: json };
+  quoteCache.set(symbol, { expiresAt: Date.now() + QUOTE_CACHE_TTL_MS, result });
+  return result;
 }
 
 async function fetchQuoteWithVariants(symbol: string, apikey: string): Promise<{ quote?: TwelveQuote; error?: string }> {
