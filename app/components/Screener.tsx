@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Search, ChevronUp, ChevronDown } from "lucide-react";
 import { Stock, Signal } from "@/lib/data";
 import SignalBadge from "./SignalBadge";
@@ -20,6 +20,7 @@ export default function Screener({ stocks, onSelect, selectedTicker, onResolveSy
   const [sortDir, setSortDir] = useState<1 | -1>(1);
   const [filter, setFilter] = useState<"all" | Signal>("all");
   const [search, setSearch] = useState("");
+  const lookupDebounceRef = useRef<number | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toUpperCase();
@@ -43,7 +44,15 @@ export default function Screener({ stocks, onSelect, selectedTicker, onResolveSy
     else { setSortKey(key); setSortDir(1); }
   };
 
-  const handleSearchChange = async (value: string) => {
+  useEffect(() => {
+    return () => {
+      if (lookupDebounceRef.current !== null) {
+        window.clearTimeout(lookupDebounceRef.current);
+      }
+    };
+  }, []);
+
+  const handleSearchChange = (value: string) => {
     setSearch(value);
 
     const q = value.trim().toUpperCase();
@@ -59,7 +68,12 @@ export default function Screener({ stocks, onSelect, selectedTicker, onResolveSy
     }
 
     if (!match && /^[A-Z.\-]{3,12}$/.test(q)) {
-      await onResolveSymbol(q);
+      if (lookupDebounceRef.current !== null) {
+        window.clearTimeout(lookupDebounceRef.current);
+      }
+      lookupDebounceRef.current = window.setTimeout(() => {
+        void onResolveSymbol(q);
+      }, 300);
     }
   };
 
@@ -110,7 +124,7 @@ export default function Screener({ stocks, onSelect, selectedTicker, onResolveSy
           <input
             type="text" placeholder="Search ticker..."
             value={search}
-            onChange={(e) => { void handleSearchChange(e.target.value); }}
+            onChange={(e) => { handleSearchChange(e.target.value); }}
             style={{
               background: "none", border: "none", outline: "none",
               fontSize: 12, color: "var(--text-primary)", fontFamily: "inherit", width: 130,
