@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BarChart2, Bell, Settings, User } from "lucide-react";
 import { getUsMarketStatus } from "@/lib/marketHours";
@@ -41,13 +42,21 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <p className={`text-[11px] tracking-[0.04em] ${marketStatus.isOpen ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
             <span className="mr-1" aria-hidden>
               ●
             </span>
             MARKET {marketStatus.label}
           </p>
+
+          <Link
+            href="/login"
+            className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] text-[var(--text-primary)] hover:bg-white/10"
+          >
+            Sign in
+          </Link>
+
           {[Bell, Settings, User].map((Icon, i) => (
             <button
               key={i}

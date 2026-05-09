@@ -25,6 +25,19 @@ cp .env.example .env.local
 npm run dev
 ```
 
+## Auth Setup (Google + GitHub)
+
+1. Add these in `.env.local`:
+   - `AUTH_SECRET`
+   - `AUTH_GOOGLE_ID`
+   - `AUTH_GOOGLE_SECRET`
+   - `AUTH_GITHUB_ID`
+   - `AUTH_GITHUB_SECRET`
+2. Create OAuth apps:
+   - Google redirect URI: `http://localhost:3000/api/auth/callback/google`
+   - GitHub callback URL: `http://localhost:3000/api/auth/callback/github`
+3. Start app and open `/login`.
+
 Open [http://localhost:3000](http://localhost:3000)
 
 ## Deploy to Vercel
