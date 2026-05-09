@@ -20,6 +20,8 @@ A professional stock screener and technical analysis platform — a TradingView-
 
 ```bash
 npm install
+cp .env.example .env.local
+# set TWELVE_DATA_API_KEY in .env.local
 npm run dev
 ```
 
@@ -35,7 +37,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## Roadmap
 - [ ] Candlestick chart with TradingView Lightweight Charts
-- [ ] Real market data via Polygon.io API
+- [x] Real market data via Twelve Data free API
 - [ ] Price alerts
 - [ ] Portfolio tracker
 - [ ] Technical indicators (MACD, Bollinger Bands)

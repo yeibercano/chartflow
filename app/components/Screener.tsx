@@ -11,20 +11,22 @@ interface ScreenerProps {
   stocks: Stock[];
   onSelect: (ticker: string) => void;
   selectedTicker: string;
+  onResolveSymbol: (ticker: string) => Promise<void>;
+  dataMessage?: string;
 }
 
-export default function Screener({ stocks, onSelect, selectedTicker }: ScreenerProps) {
+export default function Screener({ stocks, onSelect, selectedTicker, onResolveSymbol, dataMessage }: ScreenerProps) {
   const [sortKey, setSortKey] = useState<SortKey>("ticker");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
   const [filter, setFilter] = useState<"all" | Signal>("all");
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
+    const q = search.trim().toUpperCase();
     return stocks
       .filter(s => {
         if (filter !== "all" && s.signal !== filter) return false;
-        if (search) {
-          const q = search.toUpperCase();
+        if (q) {
           return s.ticker.includes(q) || s.name.toUpperCase().includes(q);
         }
         return true;
@@ -39,6 +41,26 @@ export default function Screener({ stocks, onSelect, selectedTicker }: ScreenerP
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir(d => (d === 1 ? -1 : 1));
     else { setSortKey(key); setSortDir(1); }
+  };
+
+  const handleSearchChange = async (value: string) => {
+    setSearch(value);
+
+    const q = value.trim().toUpperCase();
+    if (!q) return;
+
+    const match = stocks.find((s) => {
+      if (filter !== "all" && s.signal !== filter) return false;
+      return s.ticker.includes(q) || s.name.toUpperCase().includes(q);
+    });
+
+    if (match && match.ticker !== selectedTicker) {
+      onSelect(match.ticker);
+    }
+
+    if (!match && /^[A-Z.\-]{3,12}$/.test(q)) {
+      await onResolveSymbol(q);
+    }
   };
 
   const SortIcon = ({ col }: { col: SortKey }) => {
@@ -62,6 +84,9 @@ export default function Screener({ stocks, onSelect, selectedTicker }: ScreenerP
         borderBottom: "0.5px solid var(--border)", background: "var(--bg-secondary)", flexShrink: 0,
       }}>
         <span style={{ fontSize: 13, fontWeight: 500, flex: 1 }}>Market Screener</span>
+        {dataMessage ? (
+          <span style={{ fontSize: 10, color: "var(--amber)", letterSpacing: "0.04em" }}>{dataMessage}</span>
+        ) : null}
 
         {(["all", "buy", "hold", "sell"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{
@@ -84,7 +109,8 @@ export default function Screener({ stocks, onSelect, selectedTicker }: ScreenerP
           <Search size={13} color="rgba(255,255,255,0.3)" />
           <input
             type="text" placeholder="Search ticker..."
-            value={search} onChange={e => setSearch(e.target.value)}
+            value={search}
+            onChange={(e) => { void handleSearchChange(e.target.value); }}
             style={{
               background: "none", border: "none", outline: "none",
               fontSize: 12, color: "var(--text-primary)", fontFamily: "inherit", width: 130,

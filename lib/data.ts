@@ -33,3 +33,19 @@ export const STOCKS: Stock[] = [
 ];
 
 export const WATCHLIST_DEFAULT = ["NVDA", "AAPL", "MSFT", "TSLA", "META"];
+
+export function signalFromRsi(rsi: number): Signal {
+  if (rsi >= 65) return "buy";
+  if (rsi <= 40) return "sell";
+  return "hold";
+}
+
+export function formatLargeNumber(value?: number): string {
+  if (!Number.isFinite(value)) return "N/A";
+  const n = value as number;
+  if (n >= 1_000_000_000_000) return `${(n / 1_000_000_000_000).toFixed(2)}T`;
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)}B`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toFixed(0);
+}
