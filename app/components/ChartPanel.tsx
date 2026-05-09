@@ -118,16 +118,14 @@ export default function ChartPanel({ symbol }: ChartPanelProps) {
           close: c.close,
         }));
 
-        if (points.length === 0) {
-          seriesRef.current?.setData([]);
-          setStatus(`No real candles for ${symbol}. ${data.message ?? "Unknown error"}`);
-          return;
-        }
-
         seriesRef.current?.setData(points);
         chartRef.current?.timeScale().fitContent();
 
         const last = points[points.length - 1];
+        if (!last) {
+          setStatus(`No candles for ${symbol}. ${data.message ?? "Unknown error"}`);
+          return;
+        }
         const src = data.source === "twelvedata" ? "Twelve Data" : data.source;
         const resolved = data.resolvedSymbol ? ` (${data.resolvedSymbol})` : "";
         setStatus(`Source: ${src}${resolved} • Candles: ${points.length} • Last: ${last.close.toFixed(2)}`);

@@ -139,9 +139,9 @@ export async function GET(req: NextRequest) {
       const payload = {
         symbol,
         interval,
-        source: "error",
-        message: result.message,
-        candles: [],
+        source: "mock",
+        message: result.message ?? "Using mock candles",
+        candles: generateMockCandles(symbol, interval, outputsize),
       };
       candlesCache.set(cacheKey, { expiresAt: Date.now() + 30_000, payload });
       return NextResponse.json(
@@ -179,7 +179,7 @@ export async function GET(req: NextRequest) {
         symbol,
         interval,
         source: "mock",
-        message: "Failed to fetch candles",
+        message: "Failed to fetch candles, using mock data",
         candles: generateMockCandles(symbol, interval, outputsize),
       },
       { status: 200 },
